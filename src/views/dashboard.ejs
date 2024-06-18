@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <script>
+        window.onload = function() {
+            
+            const token = '<%= data?.token %>';
+            const email = '<%= data?.email %>';
+            if (token && email) {
+                localStorage.setItem('token', token);
+                localStorage.setItem('email', email);
+            }
+            console.log('Token stored in local storage:', JSON.stringify(data));
+        }
+        
+        async function searchTasks() {
+            const query = document.getElementById('searchInput').value.trim();
+            try {
+                const response = await fetch(`/task?search=${query}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
+                const data = await response.json();
+                console.log(data);
+                // renderTasks(data);
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        }
+
+        function renderTasks(tasks) {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = ''; // Clear previous list
+            tasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.innerHTML = `
+                    <h3>Task Name: ${task.task_name}</h3>
+                    <p>Description: ${task.description}</p>
+                    <p>Start Date: ${new Date(task.start_date).toLocaleDateString()}</p>
+                    <p>Due Date: ${new Date(task.due_date).toLocaleDateString()}</p>
+                    <p>Priority: ${task.priority}</p>
+                    <p>Assignees: ${task.assignees.join(', ')}</p>
+                `;
+                taskList.appendChild(taskItem);
+            });
+        }
+          
+    </script>
+</head>
+<body>
+    <a href="/task/create-task">Create New Task</a>
+    <h2>All Tasks</h2>
+    <form onsubmit="event.preventDefault(); searchTasks();">
+        <input type="text" id="searchInput" placeholder="Search tasks...">
+        <button type="submit">Search</button>
+    </form>
+    <ul id="taskList">
+        <% allTask?.forEach(function(task) { %>
+            <li>
+                <h3>Task Name: <%= task.task_name %></h3>
+                <p>Description: <%= task.description %></p>
+                <p>Start Date: <%= new Date(task.start_date).toLocaleDateString() %></p>
+                <p>Due Date: <%= new Date(task.due_date).toLocaleDateString() %></p>
+                <p>Priority: <%= task.priority %></p>
+                <p>Assignees: <%= task.assignees.join(', ') %></p>
+            </li>
+        <% }); %>
+    </ul>
+</body>
+</html>

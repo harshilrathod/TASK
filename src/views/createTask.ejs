@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create New Task</title>
+</head>
+<body>
+    <h1>Create New Task</h1>
+    <form id="createTaskForm">
+        <label for="task_name">Task Name:</label>
+        <input type="text" id="task_name" name="task_name" required>
+        <br>
+
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required>
+        <br>
+
+        <label for="due_date">Due Date:</label>
+        <input type="date" id="due_date" name="due_date" required>
+        <br>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea>
+        <br>
+
+        <label for="priority">Priority:</label>
+        <select id="priority" name="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+        </select>
+        <br>
+
+        <label for="assignees">Assignees (comma-separated):</label>
+        <input type="text" id="assignees" name="assignees">
+        <br>
+
+        <button type="submit">Create Task</button>
+    </form>
+    <script>
+        
+        const token = localStorage.getItem('token'); 
+        document.getElementById('createTaskForm').addEventListener('submit', function(event) {
+          event.preventDefault(); 
+          const formData = new FormData(this);
+        
+          console.log(formData);
+
+          const fetchOptions = {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          };
+    
+          // Send fetch request
+          fetch('/task/create-task', fetchOptions)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Task created:', data);
+              window.location.href = '/task/dashboard';
+            })
+            .catch(error => {
+              console.error('Error creating task:', error);
+            });
+        });
+    </script>
+</body>
+</html>
